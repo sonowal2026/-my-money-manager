@@ -1,0 +1,13 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "My Money Manager",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Money Manager",
+  "start_url": "/",
+  "theme_color": "#142746",
+  "id": "com.sonowal2026.mo neymanager",
+  "description": "A personal monthly budget tracker to manage your finances."
+}
