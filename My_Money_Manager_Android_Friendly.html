@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#142746">
+<title>My Money Manager</title>
+<style>
+:root{--navy:#142746;--bg:#f3f5fa;--card:#fff;--muted:#738096;--green:#16865b;--red:#d84b55;--blue:#3977d5;--line:#e7ebf2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#202b3b;padding-bottom:30px}
+header{background:var(--navy);color:#fff;padding:25px 20px 24px;border-radius:0 0 25px 25px}
+header h1{font-size:23px;margin:0 0 5px}header p{margin:0;color:#d4deef;font-size:13px}.date{margin-top:14px;font-size:13px;color:#d4deef}
+main{max-width:720px;margin:auto;padding:15px}
+.card{background:var(--card);border-radius:20px;padding:17px;margin:0 0 15px;box-shadow:0 5px 20px #1b31500b}
+h2{font-size:17px;margin:0 0 15px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#f1f4fa;border-radius:15px;padding:13px;min-width:0}.stat small{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;font-size:22px;margin-top:5px;overflow-wrap:anywhere}
+.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:13px;margin:13px 0 7px}.bar{height:9px;background:#e9edf4;border-radius:99px;overflow:hidden}.fill{height:100%;background:var(--green);border-radius:99px;width:0%}
+.note{color:var(--muted);font-size:12px;line-height:1.5;margin:10px 0 0}
+label{display:block;font-size:13px;font-weight:650;margin:12px 0 6px}input,select{width:100%;padding:12px;border:1px solid #dfe5ef;border-radius:12px;background:#fff;font:inherit;font-size:15px;color:#202b3b}
+button{border:0;border-radius:12px;padding:12px 15px;font:inherit;font-weight:650;cursor:pointer}.primary{background:var(--navy);color:white;width:100%;margin-top:15px}.secondary{background:#edf1f8;color:var(--navy)}.danger{background:#fff0f0;color:var(--red);padding:8px 10px;font-size:12px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}.tabs button{flex:1;background:#edf1f8;color:#536078}.tabs button.active{background:var(--navy);color:#fff}
+.cat{margin:14px 0}.cat .row{margin:0 0 7px}.cat strong{font-size:13px}.cat span{font-size:12px;color:var(--muted)}
+.tx{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.tx small{display:block;color:var(--muted);font-size:11px;margin-top:3px}.txamt{text-align:right;font-weight:700;white-space:nowrap}.empty{color:var(--muted);font-size:13px;text-align:center;padding:18px 0}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:10px}
+</style>
+</head>
+<body>
+<header>
+<h1>💰 My Money Manager</h1><p>Smart Budget • Smart Savings</p>
+<div class="date" id="today"></div>
+</header>
+<main>
+<section class="card">
+<h2>📊 Monthly Overview</h2>
+<div class="grid">
+<div class="stat"><small>Monthly Budget</small><strong>₹8,000</strong></div>
+<div class="stat"><small>Money Spent</small><strong class="red" id="spent">₹0</strong></div>
+<div class="stat"><small>Money Remaining</small><strong class="green" id="remaining">₹8,000</strong></div>
+<div class="stat"><small>Total Income</small><strong class="blue" id="income">₹0</strong></div>
+</div>
+<div class="row"><b>Monthly budget used</b><b id="percent">0%</b></div><div class="bar"><div class="fill" id="monthbar"></div></div>
+<p class="note" id="budgetnote">₹8,000 remaining from your monthly budget.</p>
+</section>
+<section class="card">
+<h2>📅 Weekly Budget</h2>
+<div class="grid">
+<div class="stat"><small>Weekly Limit</small><strong>₹2,000</strong></div>
+<div class="stat"><small>This Week Spent</small><strong class="red" id="weekspent">₹0</strong></div>
+</div>
+<div class="row"><span>Weekly budget used</span><b id="weekpercent">0%</b></div><div class="bar"><div class="fill" id="weekbar"></div></div>
+<p class="note" id="weeknote">Monday to Sunday • ₹2,000 remaining.</p>
+<div id="weeklyCats"></div>
+</section>
+<section class="card">
+<h2>➕ Add Transaction</h2>
+<div class="tabs"><button id="expenseTab" class="active" type="button">Expense</button><button id="incomeTab" type="button">Income</button></div>
+<form id="entryForm">
+<label for="amount">Amount (₹)</label><input id="amount" type="number" min="1" step="0.01" placeholder="Enter amount" required>
+<label for="category">Category</label><select id="category"></select>
+<label for="description">Description</label><input id="description" type="text" placeholder="What was it for?">
+<label for="date">Date</label><input id="date" type="date" required>
+<button class="primary" type="submit">＋ Save Transaction</button>
+</form>
+</section>
+<section class="card">
+<h2>📂 Category-wise Monthly Budget</h2><div id="monthlyCats"></div>
+<p class="note">Monthly category limits are planned for your ₹8,000 budget.</p>
+</section>
+<section class="card">
+<h2>🧾 Transaction History</h2>
+<label for="filterMonth">Filter by month</label><input type="month" id="filterMonth">
+<div id="history"></div>
+</section>
+<section class="card">
+<h2>💡 Savings Summary</h2><p id="savingText" class="note">Income: ₹0 • Expenses: ₹0 • Balance: ₹0.</p>
+<button class="primary" id="csvBtn" type="button">⬇ Download Transaction CSV</button>
+<button class="secondary" id="backupBtn" type="button" style="width:100%;margin-top:9px">Back up my data</button>
+<label for="restoreFile" style="margin-top:15px">Restore backup</label><input type="file" id="restoreFile" accept="application/json">
+<p class="note">Your transactions are saved on this device in this browser. Back up your data before clearing browser data or changing phones.</p>
+</section>
+<footer>My Money Manager • Personal Budget Tracker</footer>
+</main>
+<script>
+const MONTHLY=8000,WEEKLY=2000;
+const cats=[["Food",3000,750],["Travel",1500,375],["Tea & Snacks",1000,250],["Shopping",1000,250],["Bills & Mobile",1000,250],["Other",500,125]];
+let kind="expense",tx=[];
+const $=id=>document.getElementById(id),money=n=>"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+const today=new Date();const iso=d=>{let x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,10)};
+$("today").textContent=today.toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"});
+$("date").value=iso(today);$("filterMonth").value=iso(today).slice(0,7);
+try{tx=JSON.parse(localStorage.getItem("mmm_transactions")||"[]");if(!Array.isArray(tx))tx=[]}catch(e){tx=[]}
+function save(){localStorage.setItem("mmm_transactions",JSON.stringify(tx))}
+function weekStart(d){let x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return iso(x)}
+function inMonth(t,m){return t.date.slice(0,7)===m}
+function totals(list,type){return list.filter(t=>t.type===type).reduce((s,t)=>s+Number(t.amount),0)}
+function categoryMarkup(target,list,limits){$(target).innerHTML=cats.map(([name,limit])=>{let used=totals(list.filter(t=>t.category===name),"expense"),p=Math.min(100,used/limit*100);return `<div class="cat"><div class="row"><strong>${name}</strong><span>${money(used)} / ${money(limit)}</span></div><div class="bar"><div class="fill" style="width:${p}%;background:${used>limit?'#d84b55':'#24966b'}"></div></div></div>`}).join("")}
+function render(){
+ const month=$("filterMonth").value||iso(today).slice(0,7),mt=tx.filter(t=>inMonth(t,month)),expenses=totals(mt,"expense"),income=totals(mt,"income"),remaining=MONTHLY-expenses,p=Math.min(100,expenses/MONTHLY*100);
+ $("spent").textContent=money(expenses);$("remaining").textContent=money(remaining);$("remaining").className=remaining<0?"red":"green";$("income").textContent=money(income);$("percent").textContent=p.toFixed(1)+"%";$("monthbar").style.width=p+"%";$("monthbar").style.background=expenses>MONTHLY?"#d84b55":"#24966b";$("budgetnote").textContent=remaining>=0?money(remaining)+" remaining from your monthly budget.":money(-remaining)+" over your monthly budget.";
+ const ws=weekStart(today),we=new Date(today);we.setDate(we.getDate()+6-((we.getDay()+6)%7));const wt=tx.filter(t=>t.type==="expense"&&t.date>=ws&&t.date<=iso(we));let w=totals(wt,"expense"),wp=Math.min(100,w/WEEKLY*100);
+ $("weekspent").textContent=money(w);$("weekpercent").textContent=wp.toFixed(1)+"%";$("weekbar").style.width=wp+"%";$("weekbar").style.background=w>WEEKLY?"#d84b55":"#24966b";$("weeknote").textContent=w<=WEEKLY?`Monday to Sunday • ${money(WEEKLY-w)} remaining.`:`You are ${money(w-WEEKLY)} over this week's limit.`;
+ categoryMarkup("weeklyCats",wt,true);categoryMarkup("monthlyCats",mt,true);
+ $("savingText").textContent=`Income: ${money(income)} • Expenses: ${money(expenses)} • Income minus expenses: ${money(income-expenses)} • Budget left: ${money(remaining)}.`;
+ let shown=[...mt].sort((a,b)=>(b.date+b.id).localeCompare(a.date+a.id));
+ $("history").innerHTML=shown.length?shown.map(t=>`<div class="tx"><div><b>${escapeHtml(t.category)}</b><small>${escapeHtml(t.description||"No description")} • ${t.date}</small></div><div class="txamt ${t.type==="income"?"green":"red"}">${t.type==="income"?"+":"−"}${money(t.amount)}<br><button class="danger" onclick="removeTx('${t.id}')">Delete</button></div></div>`).join(""):'<div class="empty">No transactions for this month yet.</div>';
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function setKind(k){kind=k;$("expenseTab").classList.toggle("active",k==="expense");$("incomeTab").classList.toggle("active",k==="income");$("category").innerHTML=(k==="expense"?cats.map(c=>c[0]):["Salary","Other Income"]).map(x=>`<option>${x}</option>`).join("");$("description").placeholder=k==="expense"?"What did you spend on?":"Source of income"}
+$("expenseTab").onclick=()=>setKind("expense");$("incomeTab").onclick=()=>setKind("income");
+$("entryForm").addEventListener("submit",e=>{e.preventDefault();let amount=Number($("amount").value);if(!Number.isFinite(amount)||amount<=0)return;tx.push({id:Date.now().toString(),type:kind,amount,category:$("category").value,description:$("description").value.trim(),date:$("date").value});save();$("amount").value="";$("description").value="";render()});
+window.removeTx=id=>{if(confirm("Delete this transaction?")){tx=tx.filter(t=>t.id!==id);save();render()}};
+$("filterMonth").addEventListener("change",render);
+$("csvBtn").onclick=()=>{let rows=[["Date","Type","Category","Description","Amount"],...tx.map(t=>[t.date,t.type,t.category,t.description,t.amount])];let csv=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");download(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),"my-money-transactions.csv")};
+$("backupBtn").onclick=()=>download(new Blob([JSON.stringify(tx,null,2)],{type:"application/json"}),"my-money-manager-backup.json");
+$("restoreFile").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let data=JSON.parse(await f.text());if(!Array.isArray(data)||!data.every(t=>t.date&&t.type&&Number(t.amount)>0))throw Error();if(confirm("Restore this backup? It will replace the transactions currently saved in this browser.")){tx=data;save();render();alert("Backup restored.")}}catch(err){alert("This backup file is not valid.")}e.target.value=""};
+function download(blob,name){let a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+setKind("expense");render();
+</script>
+</body></html>
